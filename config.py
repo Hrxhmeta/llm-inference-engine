@@ -19,3 +19,19 @@ MERGES_PATH = WEIGHTS_DIR / "merges.txt"   # merge rules, highest priority first
 # GPT-2's pre-split rule: contractions, words, numbers, symbols, whitespace.
 # The optional leading space ( ?) is what keeps " world" as one chunk.
 PRETOKEN_PATTERN = r"""'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+"""
+
+
+
+WEIGHTS_FILE = WEIGHTS_DIR / "model.safetensors"
+
+# GPT-2 small architecture. These numbers define every tensor shape.
+N_LAYERS = 12
+N_HEADS = 12
+D_MODEL = 768          # width of the hidden vector for each token
+D_FF = 4 * D_MODEL     # feed-forward inner width (GPT-2 uses 4x)
+VOCAB_SIZE = 50257
+MAX_POSITIONS = 1024   # longest sequence GPT-2 was trained on
+
+# Tensors in the file that are not learned weights (the causal mask
+# is stored as a buffer). We build the mask ourselves instead.
+SKIP_SUFFIXES = (".attn.bias",)
