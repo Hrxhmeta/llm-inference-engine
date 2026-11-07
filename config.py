@@ -35,3 +35,5 @@ MAX_POSITIONS = 1024   # longest sequence GPT-2 was trained on
 # Tensors in the file that are not learned weights (the causal mask
 # is stored as a buffer). We build the mask ourselves instead.
 SKIP_SUFFIXES = (".attn.bias",)
+
+LAYER_NORM_EPS = 1e-5  # matches GPT-2's config; avoids dividing by zero
