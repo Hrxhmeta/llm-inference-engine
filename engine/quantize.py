@@ -58,9 +58,9 @@ class QMatrix:
 def matmul(x, w):
     """x @ w, where w is a normal array or a QMatrix."""
     if isinstance(w, QMatrix):
-        # Step 1 version: rebuild the float32 matrix on every call.
-        # Slow but simple; we'll speed it up in the next step.
-        return x @ dequantize(w.q, w.scale)
+        # Per-column scale commutes with the multiply, so apply it to the
+        # small output instead of rebuilding the big float32 matrix.
+        return (x @ w.q.astype(np.float32)) * w.scale
     return x @ w
 
 
