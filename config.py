@@ -40,3 +40,5 @@ LAYER_NORM_EPS = 1e-5  # matches GPT-2's config; avoids dividing by zero
 
 # Constants of GPT-2's tanh-approximate GELU.
 GELU_COEFF = 0.044715
+
+HEAD_DIM = D_MODEL // N_HEADS  # 64: each head works on this many numbers

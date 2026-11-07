@@ -39,3 +39,28 @@ def causal_mask(n):
     """(n, n) grid, True where a token must NOT look (later positions)."""
     # k=1 keeps the diagonal False: a token may look at itself.
     return np.triu(np.ones((n, n), dtype=bool), k=1)
+
+
+
+def attention(x, weights, layer):
+    """Causal multi-head self-attention for one layer."""
+    n = x.shape[0]
+    p = f"h.{layer}.attn."
+
+    qkv = x @ weights[p + "c_attn.weight"] + weights[p + "c_attn.bias"]  # (n, 2304)
+    q, k, v = np.split(qkv, 3, axis=-1)                                  # each (n, 768)
+
+    def split_heads(t):
+        # (n, 768) -> (n, 12, 64) -> (12, n, 64): one slice per head
+        return t.reshape(n, config.N_HEADS, config.HEAD_DIM).transpose(1, 0, 2)
+
+    q, k, v = split_heads(q), split_heads(k), split_heads(v)
+
+    # Scale by sqrt(head size) so scores don't blow up the softmax.
+    scores = q @ k.transpose(0, 2, 1) / np.sqrt(config.HEAD_DIM)         # (12, n, n)
+    scores = np.where(causal_mask(n), -np.inf, scores)                   # mask broadcasts over heads
+    probs = softmax(scores)
+
+    mixed = probs @ v                                                    # (12, n, 64)
+    merged = mixed.transpose(1, 0, 2).reshape(n, config.D_MODEL)         # (n, 768)
+    return merged @ weights[p + "c_proj.weight"] + weights[p + "c_proj.bias"]
