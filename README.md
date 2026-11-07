@@ -68,5 +68,5 @@ Torch and transformers are needed only for `checks/`.
 - The server is a single-user demo.
 
 ## License
-Code: MIT (see `LICENSE`). Model: GPT-2 small, MIT, from `openai-community/gpt2`
+Code: MIT (see `LICENSE.md`). Model: GPT-2 small, MIT, from `openai-community/gpt2`
 (see `notes/license.md`). Weights are downloaded, not redistributed.
