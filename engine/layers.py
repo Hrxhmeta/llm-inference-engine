@@ -64,3 +64,10 @@ def attention(x, weights, layer):
     mixed = probs @ v                                                    # (12, n, 64)
     merged = mixed.transpose(1, 0, 2).reshape(n, config.D_MODEL)         # (n, 768)
     return merged @ weights[p + "c_proj.weight"] + weights[p + "c_proj.bias"]
+
+def transformer_block(x, weights, layer):
+    """One GPT-2 layer: attention then MLP, each with pre-norm + residual."""
+    p = f"h.{layer}."
+    x = x + attention(layer_norm(x, weights[p + "ln_1.weight"], weights[p + "ln_1.bias"]), weights, layer)
+    x = x + mlp(layer_norm(x, weights[p + "ln_2.weight"], weights[p + "ln_2.bias"]), weights, layer)
+    return x
