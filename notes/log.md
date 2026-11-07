@@ -102,3 +102,14 @@ Prompt "The capital of France is", 40 new tokens, perplexity text 352 tokens.
 - Int8 is about 3.9x slower than float32 with the same cache, for 2.05x less RAM.
 - Int8 perplexity gap is -0.3%, within noise: no measurable loss on this text.
 - Not tested: longer outputs, other texts, int8 without cache.
+
+## Module 7b: Streaming server (done)
+- `server.py`: GET /generate streams one JSON message per token (SSE) with
+  tokens, tok/s, cache MB, weights MB. Toggles: use_cache, int8.
+- Verified: cache off gives cache_mb 0 and about 1.9x slower (5.4 vs 10.0 tok/s,
+  20 tokens). int8 gives 243 MB and about 3.6x slower (2.8 vs 10.0 tok/s).
+- Cached and uncached text identical on two prompts and two seeds.
+- int8 text diverged from float32 at token 13 (sampling sensitivity; perplexity
+  is the better quality evidence).
+- Limit: tok/s in the server includes prefill in the first token, and one run
+  each is not a benchmark.

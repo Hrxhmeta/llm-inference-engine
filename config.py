@@ -62,3 +62,8 @@ BENCH_NEW_TOKENS = 40
 BENCH_RUNS = 3                 # timings are noisy, so we report the median
 EVAL_TEXT_PATH = ROOT / "data" / "eval_text.txt"
 EVAL_MAX_TOKENS = 512
+
+# Dashboard server.
+SERVER_HOST = "127.0.0.1"   # local only; nothing is exposed to the network
+SERVER_PORT = 8000
+SERVER_MAX_NEW_TOKENS = 200  # cap so one request can't hog the CPU for minutes
