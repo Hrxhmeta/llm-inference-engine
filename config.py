@@ -54,3 +54,11 @@ QUANT_MAX = 127
 # Only these big matrices are quantized; biases and LayerNorms stay float32.
 QUANT_SUFFIXES = (".attn.c_attn.weight", ".attn.c_proj.weight",
                   ".mlp.c_fc.weight", ".mlp.c_proj.weight")
+
+
+# Benchmark settings.
+BENCH_PROMPT = "The capital of France is"
+BENCH_NEW_TOKENS = 40
+BENCH_RUNS = 3                 # timings are noisy, so we report the median
+EVAL_TEXT_PATH = ROOT / "data" / "eval_text.txt"
+EVAL_MAX_TOKENS = 512
