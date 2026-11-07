@@ -3,6 +3,7 @@ import numpy as np
 import config
 from engine.embeddings import embed
 from engine.layers import layer_norm, mlp, softmax
+from engine.quantize import matmul
 
 
 def cached_attention(x, weights, layer, cache, past):
@@ -10,7 +11,7 @@ def cached_attention(x, weights, layer, cache, past):
     n = x.shape[0]
     p = f"h.{layer}.attn."
 
-    qkv = x @ weights[p + "c_attn.weight"] + weights[p + "c_attn.bias"]   # (n, 2304)
+    qkv = matmul(x, weights[p + "c_attn.weight"]) + weights[p + "c_attn.bias"]   # (n, 2304)
     q, k, v = np.split(qkv, 3, axis=-1)
 
     def split_heads(t):
@@ -30,7 +31,7 @@ def cached_attention(x, weights, layer, cache, past):
 
     mixed = softmax(scores) @ v                                # (12, n, 64)
     merged = mixed.transpose(1, 0, 2).reshape(n, config.D_MODEL)
-    return merged @ weights[p + "c_proj.weight"] + weights[p + "c_proj.bias"]
+    return matmul(merged, weights[p + "c_proj.weight"]) + weights[p + "c_proj.bias"]
 
 
 def forward_cached(weights, token_ids, cache):

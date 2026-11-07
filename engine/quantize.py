@@ -41,3 +41,38 @@ def fake_quantize_weights(weights, per_column=False):
             before += w.nbytes
             after += q.nbytes + scale.nbytes
     return new, before, after
+
+
+class QMatrix:
+    """An int8 weight matrix plus its per-column scales, kept as-is in RAM."""
+
+    def __init__(self, q, scale):
+        self.q = q          # int8, shape (in, out)
+        self.scale = scale  # float32, shape (1, out)
+
+    @property
+    def nbytes(self):
+        return self.q.nbytes + self.scale.nbytes
+
+
+def matmul(x, w):
+    """x @ w, where w is a normal array or a QMatrix."""
+    if isinstance(w, QMatrix):
+        # Step 1 version: rebuild the float32 matrix on every call.
+        # Slow but simple; we'll speed it up in the next step.
+        return x @ dequantize(w.q, w.scale)
+    return x @ w
+
+
+def quantize_weights(weights):
+    """Copy of `weights` where the big matrices are real int8 QMatrix objects."""
+    new = dict(weights)
+    for name, w in weights.items():
+        if name.endswith(config.QUANT_SUFFIXES):
+            new[name] = QMatrix(*quantize(w, per_column=True))
+    return new
+
+
+def weights_nbytes(weights):
+    """Total bytes held by the weights dict (arrays and QMatrix objects)."""
+    return sum(w.nbytes for w in weights.values())

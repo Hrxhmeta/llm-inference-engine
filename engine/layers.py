@@ -1,4 +1,5 @@
 import numpy as np
+from engine.quantize import matmul
 
 import config
 
@@ -22,9 +23,11 @@ def gelu(x):
 def mlp(x, weights, layer):
     """Feed-forward block: expand to 4x width, GELU, shrink back."""
     p = f"h.{layer}.mlp."
-    hidden = x @ weights[p + "c_fc.weight"] + weights[p + "c_fc.bias"]
+    hidden = matmul(x, weights[p + "c_fc.weight"]) + weights[p + "c_fc.bias"]
     hidden = gelu(hidden)
-    return hidden @ weights[p + "c_proj.weight"] + weights[p + "c_proj.bias"]
+    return matmul(hidden, weights[p + "c_proj.weight"]) + weights[p + "c_proj.bias"]
+
+   
 
 def softmax(x):
     """Turn each row of scores into percentages that sum to 1."""
@@ -47,7 +50,7 @@ def attention(x, weights, layer):
     n = x.shape[0]
     p = f"h.{layer}.attn."
 
-    qkv = x @ weights[p + "c_attn.weight"] + weights[p + "c_attn.bias"]  # (n, 2304)
+    qkv = matmul(x, weights[p + "c_attn.weight"]) + weights[p + "c_attn.bias"]  # (n, 2304)
     q, k, v = np.split(qkv, 3, axis=-1)                                  # each (n, 768)
 
     def split_heads(t):
@@ -63,7 +66,7 @@ def attention(x, weights, layer):
 
     mixed = probs @ v                                                    # (12, n, 64)
     merged = mixed.transpose(1, 0, 2).reshape(n, config.D_MODEL)         # (n, 768)
-    return merged @ weights[p + "c_proj.weight"] + weights[p + "c_proj.bias"]
+    return matmul(merged, weights[p + "c_proj.weight"]) + weights[p + "c_proj.bias"]
 
 def transformer_block(x, weights, layer):
     """One GPT-2 layer: attention then MLP, each with pre-norm + residual."""
