@@ -121,7 +121,9 @@ Prompt "The capital of France is", 40 new tokens, perplexity text 352 tokens.
 
 
   ## Hardware
-- CPU: i5, RAM: 8GB, Windows, Python 3.12.7, NumPy 2.x, CPU only.
+- ## Hardware
+- CPU: Intel Core i5, 10th generation, 1.70 GHz (laptop), 8 GB RAM, Windows,
+  Python 3.12.7, NumPy 2.x, CPU only.
 
 ## Module 7c: Web dashboard
 - `static/index.html` served at `/`: prompt box, KV cache and int8 toggles,

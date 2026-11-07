@@ -21,9 +21,9 @@ The KV-cached path matches the full forward pass, and cached and uncached
 generation give identical text for the same seed (checked on two prompts).
 
 ## Results
-Hardware: <full CPU model>, 8 GB RAM, Windows, CPU only. Prompt "The capital of
-France is", 40 new tokens, median of 3 runs after 1 warmup, perplexity on a
-352-token text.
+Hardware: Intel Core i5 (10th generation, 1.70 GHz) laptop, 8 GB RAM, Windows, CPU only.
+Prompt "The capital of France is", 40 new tokens, median of 3 runs after 1 warmup,
+perplexity on a 352-token text.
 
 | config | tok/s median (min-max) | weights | perplexity |
 |---|---|---|---|
