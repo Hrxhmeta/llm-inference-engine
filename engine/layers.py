@@ -25,3 +25,17 @@ def mlp(x, weights, layer):
     hidden = x @ weights[p + "c_fc.weight"] + weights[p + "c_fc.bias"]
     hidden = gelu(hidden)
     return hidden @ weights[p + "c_proj.weight"] + weights[p + "c_proj.bias"]
+
+def softmax(x):
+    """Turn each row of scores into percentages that sum to 1."""
+    # Subtracting the row max doesn't change the result, but stops
+    # exp() from overflowing on big scores.
+    shifted = x - x.max(axis=-1, keepdims=True)
+    e = np.exp(shifted)
+    return e / e.sum(axis=-1, keepdims=True)
+
+
+def causal_mask(n):
+    """(n, n) grid, True where a token must NOT look (later positions)."""
+    # k=1 keeps the diagonal False: a token may look at itself.
+    return np.triu(np.ones((n, n), dtype=bool), k=1)
