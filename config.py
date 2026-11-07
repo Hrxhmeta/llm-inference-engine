@@ -48,3 +48,9 @@ DEFAULT_TEMPERATURE = 0.8
 DEFAULT_TOP_K = 40
 DEFAULT_MAX_NEW_TOKENS = 40
 END_OF_TEXT_ID = 50256  # GPT-2's special end-of-text token
+
+# int8 quantization: values are stored in -127..127 (symmetric, so 0 stays 0).
+QUANT_MAX = 127
+# Only these big matrices are quantized; biases and LayerNorms stay float32.
+QUANT_SUFFIXES = (".attn.c_attn.weight", ".attn.c_proj.weight",
+                  ".mlp.c_fc.weight", ".mlp.c_proj.weight")
