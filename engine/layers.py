@@ -15,7 +15,7 @@ def layer_norm(x, weight, bias):
 
 def gelu(x):
     """GPT-2's tanh-approximate GELU, applied to every number separately."""
-    inner = np.sqrt(2 / np.pi) * (x + config.GELU_COEFF * x**3)
+    inner = np.float32(np.sqrt(2 / np.pi)) * (x + config.GELU_COEFF * x**3)
     return 0.5 * x * (1 + np.tanh(inner))
 
 
@@ -57,7 +57,7 @@ def attention(x, weights, layer):
     q, k, v = split_heads(q), split_heads(k), split_heads(v)
 
     # Scale by sqrt(head size) so scores don't blow up the softmax.
-    scores = q @ k.transpose(0, 2, 1) / np.sqrt(config.HEAD_DIM)         # (12, n, n)
+    scores = q @ k.transpose(0, 2, 1) / np.float32(np.sqrt(config.HEAD_DIM))         # (12, n, n)
     scores = np.where(causal_mask(n), -np.inf, scores)                   # mask broadcasts over heads
     probs = softmax(scores)
 

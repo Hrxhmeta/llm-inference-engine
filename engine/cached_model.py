@@ -22,7 +22,7 @@ def cached_attention(x, weights, layer, cache, past):
     k, v = cache.append(layer, k, v)                           # (12, past+n, 64)
     total = past + n
 
-    scores = q @ k.transpose(0, 2, 1) / np.sqrt(config.HEAD_DIM)   # (12, n, total)
+    scores = q @ k.transpose(0, 2, 1) / np.float32(np.sqrt(config.HEAD_DIM))   # (12, n, total)
     # New token i sits at absolute position past+i, so it may see columns
     # 0..past+i. Everything from column past+i+1 on is blocked.
     blocked = np.triu(np.ones((n, total), dtype=bool), k=past + 1)
