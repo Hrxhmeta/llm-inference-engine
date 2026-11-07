@@ -37,3 +37,6 @@ MAX_POSITIONS = 1024   # longest sequence GPT-2 was trained on
 SKIP_SUFFIXES = (".attn.bias",)
 
 LAYER_NORM_EPS = 1e-5  # matches GPT-2's config; avoids dividing by zero
+
+# Constants of GPT-2's tanh-approximate GELU.
+GELU_COEFF = 0.044715
