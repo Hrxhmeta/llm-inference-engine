@@ -42,3 +42,9 @@ LAYER_NORM_EPS = 1e-5  # matches GPT-2's config; avoids dividing by zero
 GELU_COEFF = 0.044715
 
 HEAD_DIM = D_MODEL // N_HEADS  # 64: each head works on this many numbers
+
+# Generation defaults (the dashboard will override these later).
+DEFAULT_TEMPERATURE = 0.8
+DEFAULT_TOP_K = 40
+DEFAULT_MAX_NEW_TOKENS = 40
+END_OF_TEXT_ID = 50256  # GPT-2's special end-of-text token
