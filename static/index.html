@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GPT-2 from scratch</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; }
+  textarea { width: 100%; height: 5rem; font-size: 1rem; box-sizing: border-box; }
+  .row { margin: 0.8rem 0; display: flex; gap: 1.2rem; align-items: center; flex-wrap: wrap; }
+  button { font-size: 1rem; padding: 0.4rem 1.2rem; }
+  #output { white-space: pre-wrap; border: 1px solid #aaa; border-radius: 6px;
+            padding: 0.8rem; min-height: 8rem; }
+  #metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; margin-top: 1rem; }
+  .tile { border: 1px solid #aaa; border-radius: 6px; padding: 0.6rem; text-align: center; }
+  .tile b { display: block; font-size: 1.4rem; }
+  .tile span { font-size: 0.8rem; color: #666; }
+</style>
+</head>
+<body>
+<h1>GPT-2 in pure NumPy</h1>
+
+<textarea id="prompt">The capital of France is</textarea>
+
+<div class="row">
+  <label><input type="checkbox" id="cache" checked> KV cache</label>
+  <label><input type="checkbox" id="int8"> int8 weights</label>
+  <label>tokens <input type="number" id="n" value="40" min="1" max="200" style="width:4rem"></label>
+  <button id="go">Generate</button>
+</div>
+
+<div id="output"></div>
+
+<div id="metrics">
+  <div class="tile"><b id="m-tokens">0</b><span>tokens</span></div>
+  <div class="tile"><b id="m-speed">0.0</b><span>tokens/sec</span></div>
+  <div class="tile"><b id="m-cache">0.0</b><span>KV cache MB</span></div>
+  <div class="tile"><b id="m-weights">0</b><span>weights MB</span></div>
+</div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+  let source = null;
+
+  $("go").onclick = () => {
+    if (source) source.close();              // stop any run still going
+    $("output").textContent = "";
+
+    // encodeURIComponent keeps spaces/newlines in the prompt URL-safe.
+    const params = new URLSearchParams({
+      prompt: $("prompt").value,
+      use_cache: $("cache").checked,
+      int8: $("int8").checked,
+      max_new_tokens: $("n").value,
+    });
+    source = new EventSource("/generate?" + params);
+
+    source.onmessage = (event) => {
+      const d = JSON.parse(event.data);
+      $("output").textContent += d.text;
+      $("m-tokens").textContent = d.tokens;
+      $("m-speed").textContent = d.tok_per_s.toFixed(1);
+      $("m-cache").textContent = d.cache_mb.toFixed(1);
+      $("m-weights").textContent = d.weights_mb.toFixed(0);
+      // Without this, EventSource reconnects and restarts the generation.
+      if (d.done) { source.close(); source = null; }
+    };
+    // Errors (e.g. a rejected prompt) also trigger this; stop retrying.
+    source.onerror = () => { if (source) { source.close(); source = null; } };
+  };
+</script>
+</body>
+</html>

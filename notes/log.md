@@ -60,7 +60,7 @@ never inside `engine/`.
 | Cache size, 45 tokens | 6.4 MB | 3.3 MB |
 - Caveat: the 2.9x mixes two savings (no recompute of past tokens, and
   projecting only the last row to 50257 logits). Report both.
-- Caveat: 40-token run is short; the gap grows with longer text.
+- Caveat: 40-token run is short; untested whether the gap grows with longer text.
 
 ## Module 6: int8 quantization (done)
 - Scope: only the 48 big layer matrices. Biases, LayerNorms, and `wte` stay
@@ -90,7 +90,7 @@ never inside `engine/`.
 - The int8 speed explanation is a hypothesis until profiled.
 - Not yet compared with llama.cpp.
 
-## Module 7: Benchmarks, dashboard, README
+
 ## Module 7a: Full benchmark (3 timed runs after 1 warmup, median)
 Prompt "The capital of France is", 40 new tokens, perplexity text 352 tokens.
 | config | tok/s median (min-max) | weights | perplexity |
@@ -113,3 +113,28 @@ Prompt "The capital of France is", 40 new tokens, perplexity text 352 tokens.
   is the better quality evidence).
 - Limit: tok/s in the server includes prefill in the first token, and one run
   each is not a benchmark.
+
+
+
+
+
+
+
+  ## Hardware
+- CPU: i5, RAM: 8GB, Windows, Python 3.12.7, NumPy 2.x, CPU only.
+
+## Module 7c: Web dashboard
+- `static/index.html` served at `/`: prompt box, KV cache and int8 toggles,
+  live token streaming, tiles for tokens, tok/s, KV cache MB, weights MB.
+- Status: verified: streams live, toggles change the tiles
+
+## Not done
+- Batching, speculative decoding, comparison with llama.cpp.
+- Longer-output benchmark (does the cache gap grow with length?).
+- Profiling the int8 slowdown (the memory-traffic explanation is a hypothesis).
+
+## Reproduce
+1. `pip install -r requirements.txt`, then `python download_weights.py`
+2. Checks: `python checks\11_check_full_model.py` (and 12, 15)
+3. Benchmark: `python benchmarks\02_full_benchmark.py`
+4. Dashboard: `python server.py`, open http://127.0.0.1:8000/

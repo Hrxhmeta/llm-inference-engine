@@ -1,6 +1,8 @@
 import json
 import time
 
+from fastapi.responses import FileResponse, StreamingResponse
+
 import uvicorn
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import StreamingResponse
@@ -13,6 +15,7 @@ from engine.tokenizer import Tokenizer
 from engine.weights import load_weights
 
 app = FastAPI()
+INDEX_PATH = config.ROOT / "static" / "index.html"
 
 # Loaded once at startup and shared by all requests. The int8 copy reuses
 # the float32 arrays it doesn't quantize, so it costs only ~85 MB extra.
@@ -78,6 +81,10 @@ def generate_stream(
 
     return StreamingResponse(events(), media_type="text/event-stream")
 
+
+@app.get("/")
+def index():
+    return FileResponse(INDEX_PATH)
 
 if __name__ == "__main__":
     uvicorn.run(app, host=config.SERVER_HOST, port=config.SERVER_PORT)
